@@ -28,14 +28,17 @@ AFRAME.registerSystem('network', {
   onNetworkConnect: function () {
     var self = this;
     // unfortunately, our position and rotation attributes aren't set when we call this
-    self.socket.emit('spawn', { });
+    self.socket.emit('spawn', {
+      position: {x: 0, y: 0, z: 0},
+      rotation: {x: 0, y: 0, z: 0}
+    });
     self.socket.on('message', function (data) {
       console.log(data);
     }).on('spawn', function (data) {
       var entityEl = document.createElement('a-box');
       entityEl.setAttribute('network', {
         local: false,
-        serverId: data.id,
+        serverId: data.id
       });
       console.log("Spawning remote object: ", data.id);
       entityEl.setAttribute('position', data.position);
@@ -55,8 +58,8 @@ AFRAME.registerSystem('network', {
     }).on('despawn', function (data) {
       console.log("Despawning remote object: ", data.id);
       var entityEl = self.entities[data.id];
-      entityEl.parentNode.removeChild(entityEl);
       self.unregisterMe(entityEl);
+      entityEl.parentNode.removeChild(entityEl);
     })
   },
 
@@ -70,11 +73,11 @@ AFRAME.registerSystem('network', {
   },
 
   registerMe: function (el) {
-    this.entities[el.getAttribute('network').serverId] = el;
+    this.entities[el.components.network.attrValue.serverId] = el;
   },
 
   unregisterMe: function (el) {
-    delete this.entities[el.getAttribute('network').serverId];
+    delete this.entities[el.components.network.attrValue.serverId];
   },
 
   emit: function (message, data) {
@@ -88,7 +91,7 @@ AFRAME.registerSystem('network', {
 AFRAME.registerComponent('network', {
   schema: {
     local: { type: 'boolean' },
-    serverId: { type: 'string' },
+    serverId: { type: 'string' }
   },
 
   /**

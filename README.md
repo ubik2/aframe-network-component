@@ -26,7 +26,7 @@ Install and use by directly including the [browser files](dist):
 
 <body>
   <a-scene>
-    <a-entity network="local: true"></a-entity>
+    <a-entity id="player" camera wasd-controls look-controls position="0 0.5 0.5" network="local: true"></a-entity>
   </a-scene>
 </body>
 ```
