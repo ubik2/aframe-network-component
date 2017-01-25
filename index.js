@@ -5,47 +5,117 @@ if (typeof AFRAME === 'undefined') {
 }
 
 /**
- * A-Frame Network Component component for A-Frame.
+ * A-Frame Network System for A-Frame.
+ */
+AFRAME.registerSystem('network', {
+  dependencies: ['position', 'rotation'],
+
+  schema: {
+    url: {
+      type: 'string',
+      default: null
+    },
+    port: {
+      type: 'number',
+      default: 4000
+    },
+    path: {
+      type: 'string',
+      default: '/chat'
+    }
+  },
+
+  onNetworkConnect: function () {
+    var self = this;
+    // unfortunately, our position and rotation attributes aren't set when we call this
+    self.socket.emit('spawn', { });
+    self.socket.on('message', function (data) {
+      console.log(data);
+    }).on('spawn', function (data) {
+      var entityEl = document.createElement('a-box');
+      entityEl.setAttribute('network', {
+        local: false,
+        serverId: data.id,
+      });
+      console.log("Spawning remote object: ", data.id);
+      entityEl.setAttribute('position', data.position);
+      entityEl.setAttribute('rotation', data.rotation);
+      if (entityEl.components.material !== undefined) {
+        entityEl.setAttribute('material', 'color', data.color);
+      }
+      var scene = document.querySelector('a-scene');
+      scene.appendChild(entityEl);
+      self.registerMe(entityEl);
+    }).on('position', function (data) {
+      var entityEl = self.entities[data.id];
+      entityEl.setAttribute('position', data.position);
+    }).on('rotation', function (data) {
+      var entityEl = self.entities[data.id];
+      entityEl.setAttribute('rotation', data.rotation);
+    }).on('despawn', function (data) {
+      console.log("Despawning remote object: ", data.id);
+      var entityEl = self.entities[data.id];
+      entityEl.parentNode.removeChild(entityEl);
+      self.unregisterMe(entityEl);
+    })
+  },
+
+  init: function () {
+    this.entities = {};
+    if (this.data.url == undefined || this.data.url == "") {
+      this.data.url = location.protocol + '//' + location.hostname + ':' + this.data.port + this.data.path;
+    }
+    this.socket = io.connect(this.data.url);
+    this.socket.on('connect', this.onNetworkConnect.bind(this));
+  },
+
+  registerMe: function (el) {
+    this.entities[el.getAttribute('network').serverId] = el;
+  },
+
+  unregisterMe: function (el) {
+    delete this.entities[el.getAttribute('network').serverId];
+  },
+
+  emit: function (message, data) {
+    this.socket.emit(message, data);
+  }
+});
+
+/**
+ * A-Frame Network Component for A-Frame.
  */
 AFRAME.registerComponent('network', {
-  schema: {},
-
-  /**
-   * Set if component needs multiple instancing.
-   */
-  multiple: false,
+  schema: {
+    local: { type: 'boolean' },
+    serverId: { type: 'string' },
+  },
 
   /**
    * Called once when component is attached. Generally for initial setup.
    */
-  init: function () { },
+  init: function () {
+    if (this.data.local) {
+      this.el.addEventListener('componentchanged', this.onComponentChanged.bind(this));
+    }
+  },
 
-  /**
-   * Called when component is attached and when component data changes.
-   * Generally modifies the entity based on the data.
-   */
-  update: function (oldData) { },
-
-  /**
-   * Called when a component is removed (e.g., via removeAttribute).
-   * Generally undoes all modifications to the entity.
-   */
-  remove: function () { },
-
-  /**
-   * Called on each scene tick.
-   */
-  // tick: function (t) { },
-
-  /**
-   * Called when entity pauses.
-   * Use to stop or remove any dynamic or background behavior such as events.
-   */
-  pause: function () { },
-
-  /**
-   * Called when entity resumes.
-   * Use to continue or add any dynamic or background behavior such as events.
-   */
-  play: function () { }
+  onComponentChanged: function (evt) {
+    var socket = this.system.socket;
+    if (evt.detail.name === 'position') {
+      var oldData = this.lastPosition;
+      var newData = evt.detail.newData;
+      if (oldData == undefined || oldData.x !== newData.x || oldData.y !== newData.y || oldData.z !== newData.z) {
+        this.system.emit('position', evt.detail.newData);
+        this.lastPosition = newData;
+      }
+    } else if (evt.detail.name === 'rotation') {
+      var oldData = this.lastRotation;
+      var newData = evt.detail.newData;
+      if (oldData == undefined || oldData.x !== newData.x || oldData.y !== newData.y || oldData.z !== newData.z) {
+        this.system.emit('rotation', evt.detail.newData);
+        this.lastRotation = newData;
+      }
+    }
+  }
 });

@@ -20,12 +20,13 @@ Install and use by directly including the [browser files](dist):
 <head>
   <title>My A-Frame Scene</title>
   <script src="https://aframe.io/releases/0.4.0/aframe.min.js"></script>
+  <script src="https://unpkg.com/socket.io-client/dist/socket.io.min.js"></script>
   <script src="https://unpkg.com/aframe-network-component/dist/aframe-network-component.min.js"></script>
 </head>
 
 <body>
   <a-scene>
-    <a-entity network="foo: bar"></a-entity>
+    <a-entity network="local: true"></a-entity>
   </a-scene>
 </body>
 ```

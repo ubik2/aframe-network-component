@@ -12,7 +12,7 @@ suite('network component', function () {
     });
   });
 
-  suite('foo property', function () {
+  suite('local property', function () {
     test('is good', function () {
       assert.equal(1, 1);
     });
