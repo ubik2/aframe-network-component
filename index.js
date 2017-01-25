@@ -104,7 +104,6 @@ AFRAME.registerComponent('network', {
   },
 
   onComponentChanged: function (evt) {
-    var socket = this.system.socket;
     if (evt.detail.name === 'position') {
       var oldData = this.lastPosition;
       var newData = evt.detail.newData;
