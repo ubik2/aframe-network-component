@@ -20,8 +20,8 @@ Install and use by directly including the [browser files](dist):
 <head>
   <title>My A-Frame Scene</title>
   <script src="https://aframe.io/releases/0.4.0/aframe.min.js"></script>
-  <script src="https://unpkg.com/socket.io-client/dist/socket.io.min.js"></script>
-  <script src="https://unpkg.com/aframe-network-component/dist/aframe-network-component.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.slim.js"></script>
+  <script src="https://unpkg.com/aframe-network-component@1.0.0/index.js"></script>
 </head>
 
 <body>
