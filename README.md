@@ -56,3 +56,34 @@ Then require and use.
 require('aframe');
 require('aframe-network-component');
 ```
+
+### Getting started
+
+If you've just checked out the repository, and want to try things out, here's some quick steps to get started.
+
+#### Install dependencies
+```sh
+npm install
+```
+
+#### Build client files
+```sh
+npm run-script build
+```
+
+#### Launch the browser
+```sh
+npm start
+```
+
+At this point, click on the `Basic` link, and you should see a basic scene. You can move with the cursor keys.
+
+#### Start the server
+In a different window, you'll want to launch the server.
+
+```sh
+node server/network-server.js
+```
+
+### Overview
+Basically, the node server just listens for incoming messages, and relays data to all the connected clients. The clients send the server properties for their player avatar (which is just a cube).
