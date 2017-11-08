@@ -10,6 +10,11 @@ For [A-Frame](https://aframe.io).
 | -------- | ----------- | ------------- |
 |          |             |               |
 
+### Note
+
+When I wrote this component, there weren't other good options for networking.
+Since then, the networked-aframe component has been developed, and is actively being developed. I suggest you use that component instead.
+
 ### Installation
 
 #### Browser
